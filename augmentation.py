@@ -2,11 +2,11 @@
 
 from __future__ import print_function
 
-try:
-    CONTEXT
-except NameError:
-    import context
-    from context import CONTEXT
+# try:
+#     CONTEXT
+# except NameError:
+#     import context
+#     from context import CONTEXT
 try:
        import cupy as cp
 except:

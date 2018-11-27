@@ -2,11 +2,11 @@
 
 from __future__ import print_function
 
-try:
-   CONTEXT
-except NameError:
-    import context
-    from context import CONTEXT
+# try:
+#    CONTEXT
+# except NameError:
+#     import context
+#     from context import CONTEXT
    
 import numpy
 try:
@@ -20,140 +20,6 @@ from chainer import cuda
 import chainer.functions as F
 import chainer.links as L
 
-
-def add_noise(h, test=False, sigma=0.2):
-    xp = cuda.get_array_module(h.data)
-    if test:
-        return h
-    else:
-        return h + sigma * xp.random.randn(*h.data.shape)
-
-class MLP(chainer.Chain):
-
-    def __init__(self):
-       super (MLP, self).__init__ ()
-       with self.init_scope ():
-          self.l1 = L.Linear(None, 16)
-          self.l2 = L.Linear(None, 16)
-          self.l3 = L.Linear(None, 16)
-          self.l4 = L.Linear (None, 16)
-          self.l5 = L.Linear (None, 16)
-          self.l6 = L.Linear (None, 16)
-          self.l7 = L.Linear (None, 16)
-          self.l8 = L.Linear (None, 16)
-          self.l9 = L.Linear (None, 16)
-          self.l10 = L.Linear (None, 16)
-          self.l11 = L.Linear (None, 10)
-         
-    def __call__(self, x):
-        h1 = F.relu(self.l1(x))
-        h2 = F.relu(self.l2(h1))
-        h3 = F.relu(self.l3(h2))
-        h4 = F.relu (self.l4 (h3))
-        # h5 = F.relu (self.l5 (h4))
-        # h6 = F.relu (self.l6 (h5))
-        # h7 = F.relu (self.l7 (h6))
-        # h8 = F.relu (self.l8 (h7))
-        # h9 = F.relu (self.l9 (h8))
-        # h10 = F.relu (self.l10 (h9))
-        return self.l11 (h4)
-
-class MLP_one(chainer.Chain):
-
-    def __init__(self, hidden_size=16):
-       super (MLP_one, self).__init__ ()
-       with self.init_scope ():
-          self.l1 = L.Linear(None, hidden_size)
-          self.l2 = L.Linear(None, 10)
-          
-    def __call__(self, x):
-        h1 = F.relu(self.l1(x))
-        return self.l2 (h1)
-
-class MLP_two(chainer.Chain):
-
-    def __init__(self, hidden_sizes=(16, 16)):
-       super (MLP_two, self).__init__ ()
-       with self.init_scope ():
-          self.l1 = L.Linear(None, hidden_sizes[0])
-          self.l2 = L.Linear(None, hidden_sizes[1])
-          self.l3 = L.Linear(None, 10)
-          
-    def __call__(self, x):
-        h1 = F.relu(self.l1(x))
-        h2 = F.relu(self.l2(h1))
-        return self.l3 (h2)
-
-     
-class MLP_RBM (chainer.Chain):
-    def __init__(self):
-       super (MLP_RBM, self).__init__ ()
-       with self.init_scope ():
-          self.l1 = L.Linear(None, 64)
-          self.l2 = L.Linear(None, 10)
-          
-    def __call__(self, x):
-        h1 = F.relu(self.l1(x))
-        return self.l2 (h1)
-     
-class SLP(chainer.Chain):
-
-    def __init__(self):
-       super (SLP, self).__init__ ()
-       with self.init_scope ():
-          self.l1 = L.Linear (None, 10)
-          
-    def __call__(self, x):
-        return F.relu(self.l1(x))
-
-class fsnet (chainer.Chain):
-   '''feature selection followed by linear layers merged together with another lin. layer'''
-   def __init__(self):
-      super (fsnet, self).__init__ ()
-      with self.init_scope ():
-         self.l0 = L.Linear (None, 64)
-         self.l1 = L.Linear (None, 64)
-         self.l2 = L.Linear (None, 64)
-         self.l3 = L.Linear (None, 64)
-         self.l4 = L.Linear (None, 64)
-         self.l5 = L.Linear (None, 64)
-         self.l6 = L.Linear (None, 64)
-         self.l7 = L.Linear (None, 64)
-         self.l8 = L.Linear (None, 64)
-         self.l9 = L.Linear (None, 64)
-         self.bn=L.BatchNormalization(640, use_gamma=False)
-         self.l = L.Linear (640, 10)
-
-         # if min_indices is not None and max_indices is not None:
-         #    self.both=True
-         # else:
-         #    self.both=False
-         # self.minind = min_indices
-         # self.maxind = max_indices
-          
-   def __call__(self, x):
-      # if self.both:
-      #    x_selected = [F.concat ((x [:, self.minind [i]], x [:, self.maxind [i]]), axis=1) for i in range (10)] #(10, batchsize, 2*19563)
-      # elif self.minind is not None:
-      #    x_selected = [x [:, self.minind [i]] for i in range (10)] #(10, batchsize, 19536)
-      # elif self.maxind is not None:
-      #    x_selected = [x [:, self.maxind [i]] for i in range (10)]
-      # x: (10, batchsize, 19536) vagy (10, batchsize, 39072)
-      x = F.swapaxes (x, 0, 1)
-      x0 = F.relu (self.l0 (x [0]))
-      x1 = F.relu (self.l1 (x [1]))
-      x2 = F.relu (self.l2 (x [2]))
-      x3 = F.relu (self.l3 (x [3]))
-      x4 = F.relu (self.l4 (x [4]))
-      x5 = F.relu (self.l5 (x [5]))
-      x6 = F.relu (self.l6 (x [6]))
-      x7 = F.relu (self.l7 (x [7]))
-      x8 = F.relu (self.l8 (x [8]))
-      x9 = F.relu (self.l9 (x [9]))
-      h = self.bn (F.concat ((x0, x1, x2, x3, x4, x5, x6, x7, x8, x9), axis=1)) 
-      return F.relu(self.l(h))
-
-     
 class minornet (chainer.Chain):
 
    def __init__(self, dropout=False, batchnorm=False, s1=5, s2=25, s3=10):
