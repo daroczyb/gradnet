@@ -86,14 +86,18 @@ class gradnet (chainer.Chain):
           self.dr=dropout
           self.l=[L.Linear (None, size, initialW=w) for size in middle_sizes]
           for (i, ll) in enumerate(self.l):
-             self.add_link("l{}".format(i), ll)
+             self.add_link("l{}".format(i+1), ll)
           self.l4 = L.Linear (None, 10, initialW=w)
           
    def __call__(self, x):
-      # set_trace()
-      xs = F.split_axis (x, self.input_dividers, axis=1)
-      hs = [F.relu(self.l[i](xs[i])) for i in range(len(xs))]
-      h = F.concat(hs, axis=1)
+      x1, x2, x3 = F.split_axis (x, numpy.array ([4800, 107200]), axis=1)
+      h1 = F.relu (self.l1 (x1))
+      h2 = F.relu (self.l2 (x2))
+      h3 = F.relu (self.l3 (x3))
+      h = F.concat ((h1, h2, h3), axis=1)
+      # xs = F.split_axis (x, self.input_dividers, axis=1)
+      # hs = [F.relu(self.l[i](xs[i])) for i in range(len(xs))]
+      # h = F.concat(hs, axis=1)
       if self.dr:
          h = F.dropout(h, ratio=0.5)
       return self.l4(h)  
