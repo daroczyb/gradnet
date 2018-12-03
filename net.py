@@ -47,11 +47,10 @@ class gradnet (chainer.Chain):
           self.dr=dropout
           self.l=[L.Linear (None, size, initialW=w) for size in middle_sizes]
           for (i, ll) in enumerate(self.l):
-             self.add_link("l{}".format(i), ll)
+             self.add_link("l{}".format(i+1), ll)
           self.l4 = L.Linear (None, 10, initialW=w)
           
    def __call__(self, x):
-      x1, x2, x3 = F.split_axis (x, numpy.array ([4800, 107200]), axis=1)
       xs = F.split_axis (x, self.input_dividers, axis=1)
       hs = [F.relu(self.l[i](xs[i])) for i in range(len(xs))]
       h = F.concat(hs, axis=1)
