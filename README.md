@@ -1,3 +1,3 @@
 # GradNet
 
-Training and testing of out GradNet structure.
+Training and testing of our GradNet structure.
